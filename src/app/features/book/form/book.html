@@ -1,1 +1,76 @@
-<p>form works!</p>
+<!-- FORMULARIO DE ALTA -->
+<form [formGroup]="form" (ngSubmit)="submit()" style="display:grid;gap:12px;max-width:520px;margin-bottom:24px;">
+  <h2>Alta de Libro</h2>
+
+  <label>ISBN
+    <input formControlName="isbn" placeholder="978..." />
+  </label>
+
+  <label>Título
+    <input formControlName="title" />
+  </label>
+
+  <label>Autor
+    <input formControlName="author" />
+  </label>
+
+  <label>Categoría
+    <input formControlName="category" placeholder="Informática / Novela / ..." />
+  </label>
+
+  <label>Año de publicación
+    <input type="number" formControlName="publicationYear" min="1450" />
+  </label>
+
+  <label>Copias totales
+    <input type="number" formControlName="totalCopies" min="1" />
+  </label>
+
+  <label style="display:flex;align-items:center;gap:8px;">
+    <input type="checkbox" formControlName="isActive" />
+    Activo
+  </label>
+
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button type="submit" [disabled]="form.invalid">Guardar</button>
+    <button type="button" (click)="form.reset({publicationYear: currentYear, totalCopies: 1, isActive: true})">Limpiar</button>
+  </div>
+</form>
+
+<!-- LISTADO / VISUALIZACIÓN -->
+<section>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <h2 style="margin:0;">Libros cargados</h2>
+    <button type="button" (click)="loadBooks()">Actualizar</button>
+  </div>
+
+  <div *ngIf="loadingList">Cargando libros...</div>
+  <div *ngIf="!loadingList && books.length === 0">No hay libros cargados.</div>
+
+  <table *ngIf="!loadingList && books.length > 0" border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; max-width:900px;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>ISBN</th>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>Categoría</th>
+        <th>Año</th>
+        <th>Copias</th>
+        <th>Activo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let b of books">
+        <td>{{ b.id }}</td>
+        <td>{{ b.isbn }}</td>
+        <td>{{ b.title }}</td>
+        <td>{{ b.author }}</td>
+        <td>{{ b.category }}</td>
+        <td>{{ b.publicationYear }}</td>
+        <td>{{ b.totalCopies }}</td>
+        <td>{{ b.isActive ? 'Sí' : 'No' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
