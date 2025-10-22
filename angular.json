@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Biblotecar": {
+    "Bibliotecar": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Biblotecar:build:production"
+              "buildTarget": "Bibliotecar:build:production"
             },
             "development": {
-              "buildTarget": "Biblotecar:build:development"
+              "buildTarget": "Bibliotecar:build:development"
             }
           },
           "defaultConfiguration": "development"
