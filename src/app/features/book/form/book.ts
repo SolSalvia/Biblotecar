@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BookService, Book } from '../../../core/services/book.service';
+import { isbnValidator, yearRangeValidator, isbnUniqueValidator } from '../../../shared/validators/book.validator';
 
 @Component({
   standalone: true,
@@ -16,19 +17,27 @@ export class BookComponent implements OnInit {
   private router = inject(Router);
   private bookSvc = inject(BookService);
 
-  currentYear = new Date().getFullYear();
   loadingList = false;
   books: Book[] = [];
 
+ currentYear = new Date().getFullYear();
+
   form = this.fb.group({
-    isbn: ['', [Validators.required, Validators.minLength(10)]],
-    title: ['', Validators.required],
-    author: ['', Validators.required],
-    category: [''],
-    publicationYear: [this.currentYear, [Validators.required, Validators.min(1450), Validators.max(this.currentYear)]],
-    totalCopies: [1, [Validators.required, Validators.min(1)]],
-    isActive: [true, Validators.required]
-  });
+  isbn: ['', {  
+    validators: [Validators.required, isbnValidator()],
+    asyncValidators: [isbnUniqueValidator(this.bookSvc)],
+    updateOn: 'blur'       // los errores se disparan al salir del input
+  }],
+  title: ['', Validators.required],
+  author: ['', Validators.required],
+  category: [''],
+  publicationYear: [
+    this.currentYear,
+    [Validators.required, yearRangeValidator(1450)]
+  ],
+  totalCopies: [1, [Validators.required, Validators.min(1)]],
+  isActive: [true, Validators.required]
+});
 
   ngOnInit(): void {
     this.loadBooks();
@@ -45,26 +54,35 @@ export class BookComponent implements OnInit {
   get f() { return this.form.controls; }
 
   submit() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+  if (this.form.invalid || this.form.pending) {
+    this.form.markAllAsTouched();
+    return;
+  }
 
     const v = this.form.value;
     const payload = {
-      isbn: (v.isbn ?? '').toString().trim(),
-      title: (v.title ?? '').toString().trim(),
-      author: (v.author ?? '').toString().trim(),
-      category: (v.category ?? '').toString().trim(),
-      publicationYear: Number(v.publicationYear ?? this.currentYear),
-      totalCopies: Number(v.totalCopies ?? 1),
-      isActive: Boolean(v.isActive)
-    };
+    isbn: (v.isbn ?? '').toString().trim().replace(/[-\s]/g, ''),  // limpio ISBN
+    title: (v.title ?? '').toString().trim(),
+    author: (v.author ?? '').toString().trim(),
+    category: (v.category ?? '').toString().trim(),
+    publicationYear: Number(v.publicationYear),
+    totalCopies: Number(v.totalCopies),
+    isActive: Boolean(v.isActive)
+  } as Omit<Book,'id'>;
 
-    this.bookSvc.create(payload as Omit<Book, 'id'>).subscribe({
-      next: () => {
-        alert('📚 Libro creado con éxito');
-        this.form.reset({ publicationYear: this.currentYear, totalCopies: 1, isActive: true });
-        this.loadBooks(); // refresca la tabla
-      },
-      error: () => alert('❌ No se pudo crear el libro. ¿Está corriendo JSON Server en :3000?')
-    });
-  }
+    this.bookSvc.create(payload).subscribe({
+    next: () => {
+      alert('📚 Libro creado con éxito');
+      // refrescá la tabla si tenés loadBooks()
+      this.loadBooks?.();
+      // resetea el form a valores por defecto
+      this.form.reset({
+        publicationYear: this.currentYear,
+        totalCopies: 1,
+        isActive: true
+      });
+    },
+    error: () => alert('❌ No se pudo crear el libro. ¿Está corriendo JSON Server en :3000?')
+  });
+}
 }

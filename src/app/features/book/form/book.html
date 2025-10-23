@@ -3,27 +3,53 @@
   <h2>Alta de Libro</h2>
 
   <label>ISBN
-    <input formControlName="isbn" placeholder="978..." />
-  </label>
+  <input formControlName="isbn" placeholder="978..." />
+  <div *ngIf="f.isbn.invalid && (f.isbn.dirty || f.isbn.touched)">
+    <small *ngIf="f.isbn.errors?.['required']">Requerido</small>
+    <small *ngIf="f.isbn.errors?.['isbnInvalid']">ISBN inválido </small>
+    <small *ngIf="f.isbn.errors?.['isbnTaken']">El ISBN ya existe</small>
+  </div>
+  <small *ngIf="f.isbn.pending">Verificando ISBN...</small>
+</label>
 
   <label>Título
-    <input formControlName="title" />
+    <input type="text" id="title" formControlName="title" placeholder="Harry Potter y la piedra filosofal">
+    <div *ngIf="f.title.invalid && (f.title.dirty || f.title.touched)">
+      <small *ngIf="f.title.errors?.['required']">Requerido</small>
+    </div>
   </label>
 
   <label>Autor
-    <input formControlName="author" />
+    <input type="text" id="author" formControlName="author" placeholder="J.K. Rowling">
+    <div *ngIf="f.author.invalid && (f.author.dirty || f.author.touched)">
+      <small *ngIf="f.author.errors?.['required']">Requerido</small>
+    </div>
   </label>
 
   <label>Categoría
-    <input formControlName="category" placeholder="Informática / Novela / ..." />
+    <input type="text" id="category" formControlName="category" placeholder="Novela, Ciencia Ficción, Fantasía...">
+    <div *ngIf="f.category.invalid && (f.category.dirty || f.category.touched)">
+      <small *ngIf="f.category.errors?.['required']">Requerido</small>
+    </div>
   </label>
 
-  <label>Año de publicación
-    <input type="number" formControlName="publicationYear" min="1450" />
-  </label>
+ <label>Año de publicación
+  <input type="number" formControlName="publicationYear" [attr.max]="currentYear" min="1450" />
+  <div *ngIf="f.publicationYear.invalid && (f.publicationYear.dirty || f.publicationYear.touched)">
+    <small *ngIf="f.publicationYear.errors?.['yearInvalid']">Año inválido</small>
+    <small *ngIf="f.publicationYear.errors?.['yearOutOfRange'] as yr">
+      Debe estar entre {{ yr.min }} y {{ yr.max }}
+    </small>
+    <small *ngIf="f.publicationYear.errors?.['required']">Requerido</small>
+  </div>
+</label>
 
   <label>Copias totales
-    <input type="number" formControlName="totalCopies" min="1" />
+    <input type="number" id="totalCopies" formControlName="totalCopies" placeholder="1" min="1" />
+    <div *ngIf="f.totalCopies.invalid && (f.totalCopies.dirty || f.totalCopies.touched)">
+      <small *ngIf="f.totalCopies.errors?.['required']">Requerido</small>
+      <small *ngIf="f.totalCopies.errors?.['min']">Debe ser al menos 1</small>
+    </div>
   </label>
 
   <label style="display:flex;align-items:center;gap:8px;">

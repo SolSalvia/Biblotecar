@@ -28,10 +28,10 @@ export class BookService {
     return this.http.get<Book[]>(this.base);
   }
 
-  // Para crear NO exigimos 'id' (lo genera json-server)
-  create(book: Omit<Book, 'id'>): Observable<Book> {
-    return this.http.post<Book>(this.base, book);
-  }
+  // CREO UN LIBRO SIN ID LO ASIGNA JSON-SERVER
+create(book: Omit<Book,'id'>) {
+  return this.http.post<Book>('http://localhost:3000/books', book);
+}
 
   update(id: number, patch: Partial<Book>): Observable<Book> {
     return this.http.patch<Book>(`${this.base}/${id}`, patch);
@@ -40,4 +40,7 @@ export class BookService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+  getByIsbn(isbn: string) {
+  return this.http.get<Book[]>(`${this.base}?isbn=${encodeURIComponent(isbn)}`);
+}
 }
